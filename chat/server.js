@@ -26,13 +26,18 @@
 
 	io.listen(server).on('connection', function(socket){
 		
-		socket.emit('messages', {'messages': chatRoom.getMessages()}); // Send message to sender
-		socket.broadcast.emit('messages', {'messages': chatRoom.getMessages()}); // Send message to everyone BUT sender
 		var user = chatRoom.addUser();
-		socket.on('client_data', function(data){
+		socket.emit('messagesFromServer', {'messages': chatRoom.getMessagesJson(), 'username': user.getName()}); // Send message to sender
+		socket.broadcast.emit('messagesFromServer', {'messages': chatRoom.getMessagesJson()}); // Send message to everyone BUT sender
+		socket.on('messageFromClient', function(data){
 			chatRoom.sendMessage(user, data.message);
-			socket.emit('messages', {'messages': chatRoom.getMessages()}); // Send message to sender
-			socket.broadcast.emit('messages', {'messages': chatRoom.getMessages()}); // Send message to everyone BUT sender
+			socket.emit('messagesFromServer', {'messages': chatRoom.getMessagesJson(), 'username': user.getName()}); // Send message to sender
+			socket.broadcast.emit('messagesFromServer', {'messages': chatRoom.getMessagesJson()}); // Send message to everyone BUT sender
+		}); 
+		socket.on('usernameFromClient', function(data){
+			user.setName(data.username);
+			socket.emit('messages', {'messages': chatRoom.getMessagesJson(), 'username': user.getName()}); // Send message to sender
+			socket.broadcast.emit('messages', {'messages': chatRoom.getMessagesJson()}); // Send message to everyone BUT sender
 		}); 
 	});
 	

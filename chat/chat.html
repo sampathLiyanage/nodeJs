@@ -6,7 +6,12 @@
 <body>
   <script>
   var socket = io.connect();
-  socket.on('messages', function(data){
+  socket.on('messagesFromServer', function(data){
+	if (data.username !== undefined){
+		$('#username').attr("disabled", false);
+		$('#username').val(data.username);
+		$('#username').attr("disabled", true);
+	}
 	var chatlog = '';
     for (i=0; i<data.messages.length; i++){
 		chatlog += data.messages[i].username + " : " + data.messages[i].message;
@@ -17,12 +22,28 @@
 
   $(document).ready(function(){
     $('#send').click(function(e){
-      socket.emit('client_data', {'message': $('#text').val()});
+      socket.emit('messageFromClient', {'message': $('#text').val()});
     });
+	
+	$('#editname').click(function() {
+		if ($(this).text() == "edit"){
+			$('#username').attr("disabled", false);
+			$(this).text('save');
+		}
+		else if ($(this).text() == "save"){
+			socket.emit('usernameFromClient', {'username': $('#username').val()});
+			$('#username').attr("disabled", true);
+			$(this).text('edit');
+		}
+	});
   });
+  
   </script>
   <div id="messages"></div>
   <br><br>
+  <input id="username"></input>
+  <button id="editname">edit</button>
+  <br>
   <textarea id="text"></textarea>
   <br><button id="send">send</button>
 </body>
