@@ -1,0 +1,29 @@
+<html>
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+</head>
+<body>
+  <script>
+  var socket = io.connect();
+  socket.on('messages', function(data){
+	var chatlog = '';
+    for (i=0; i<data.messages.length; i++){
+		chatlog += data.messages[i].username + " : " + data.messages[i].message;
+		chatlog += "<br>";
+	}
+    $('#messages').html(chatlog);
+  });
+
+  $(document).ready(function(){
+    $('#send').click(function(e){
+      socket.emit('client_data', {'message': $('#text').val()});
+    });
+  });
+  </script>
+  <div id="messages"></div>
+  <br><br>
+  <textarea id="text"></textarea>
+  <br><button id="send">send</button>
+</body>
+</html>
